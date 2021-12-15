@@ -22,7 +22,7 @@ class Author(models.Model):
         self.save()
 
     def __str__(self):
-        return self.user
+        return self.user.username
 
 
 class Post(models.Model):
@@ -63,6 +63,8 @@ class PostCategory(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
+    def __str__(self):
+        return self.name
 
 class Comment(models.Model):
     text = models.TextField(blank=True)
