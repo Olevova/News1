@@ -1,0 +1,39 @@
+{% extends 'index.html'%}
+{% load censor_filters %}
+{%block title%}
+{{news}}
+{%endblock title%}
+
+{%block containe%}
+<h5>количество новостей : {{news|length}}</h5>
+{%if news%}
+<table class="table">
+    <thead>
+    <tr>
+        <td>
+            <h5>Заголовок</h5>
+        </td>
+        <td>
+            <h5>Дата публикации</h5>
+        </td>
+        <td>
+            <h5>Tекст</h5>
+        </td>
+    </tr>
+    </thead>
+{%for i in news%}
+    <tr>
+                <td>
+                    {{i.title|multiply}}<!--фильтр что проверяет не вхождение следующих слов ["дурак", 'невежда', 'редиска'] -->
+                </td>
+                <td>
+                    {{i.create|date:"d M Y H:i"}}
+                </td>
+                <td>
+                    {{i.text|truncatechars:50|multiply}}<!--фильтр что проверяет не вхождение следующих слов ["дурак", 'невежда', 'редиска'] -->
+                </td>
+            </tr>
+    {%endfor%}
+</table>
+    {%endif%}
+{%endblock containe%}
