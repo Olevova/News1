@@ -3,9 +3,18 @@
 {%block title%}
 {{news}}
 {%endblock title%}
-
 {%block containe%}
+
+<p>
 <h5>количество новостей : {{news|length}}</h5>
+</p>
+<form method="GET">
+    <div class="mb-3">
+    {{filter.form}}
+    <input type="submit" value="Найти">
+    </div>
+</form>
+
 {%if news%}
 <table class="table">
     <thead>
@@ -24,7 +33,9 @@
 {%for i in news%}
     <tr>
                 <td>
-                    {{i.title|multiply}}<!--фильтр что проверяет не вхождение следующих слов ["дурак", 'невежда', 'редиска'] -->
+                    <a href="{%url 'ObjNews.html' i.pk%}">{{i.title|multiply}}</a>
+                    <a class="btn btn-outline-primary btn-sm " href="{% url 'add' i.pk%}">Редактировать</a>
+                    <a class="btn btn-outline-primary btn-sm " href="{% url 'news_del' i.pk%}">Удалить</a><!--фильтр что проверяет не вхождение следующих слов ["дурак", 'невежда', 'редиска'] -->
                 </td>
                 <td>
                     {{i.create|date:"d M Y H:i"}}

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import *
+from django.shortcuts import reverse
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -22,18 +23,21 @@ class Author(models.Model):
         self.save()
 
     def __str__(self):
-        return self.user.username
+        return f'{self.user.username}'
+
+    def get_absolute_url(self):
+        return reverse("mad", kwargs={"pk": self.pk, "user": self.user})
 
 
 class Post(models.Model):
     CONTENT = [("NW", 'news'), ('AR', 'article')]
-    title = models.CharField(max_length=128)
-    content = models.CharField(max_length=2, blank=True, choices=CONTENT, default="NW")
-    create = models.DateTimeField(auto_now_add=True)
-    text = models.TextField(blank=True)
+    title = models.CharField(max_length=128, verbose_name='Название Новости')
+    content = models.CharField(max_length=2, blank=True, choices=CONTENT, default="NW", verbose_name="Вид Статьи")
+    create = models.DateTimeField(auto_now_add=True, verbose_name='Создана')
+    text = models.TextField(blank=True, verbose_name="Текст")
     rate = models.FloatField(default=0)
-    author = models.ForeignKey(Author, related_name='author', on_delete=models.CASCADE)
-    category = models.ManyToManyField('Category', through="PostCategory")
+    author = models.ForeignKey(Author, related_name='author', on_delete=models.CASCADE, verbose_name="Автор")
+    category = models.ManyToManyField('Category', through="PostCategory", verbose_name='Категория')
 
     def like(self):
         self.rate += 1
@@ -52,19 +56,30 @@ class Post(models.Model):
         return f'{self.text[:123]}...'
 
     def __str__(self):
-        return self.title
+        return f'{self.title}'
+
+    def get_absolute_url(self):
+        return f"/news/{self.id}"
+
+    class Meta:
+        verbose_name = "Пост"
+        verbose_name_plural = "Посты"
+        ordering = ['-create']
 
 
 class PostCategory(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     post = models.ForeignKey('Post', related_name="post", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.category.name
+
 
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 class Comment(models.Model):
     text = models.TextField(blank=True)
