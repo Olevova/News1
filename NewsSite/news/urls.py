@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from allauth.account.views import LogoutView, LoginView
 
 urlpatterns = [
                 path('', NewsList.as_view(), name = 'allnews'),
@@ -7,4 +8,5 @@ urlpatterns = [
                 path('add/', NewsCreateView.as_view(), name='add'),
                 path('<int:pk>/edit', NewsUpd.as_view(), name='add'),
                 path('delete/<int:pk>', NewsDel.as_view(), name='news_del'),
+                path('upgrade/', upgrade_me, name = 'upgrade'),
                 ]

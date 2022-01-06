@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import *
 from django.shortcuts import reverse
+from allauth.account.forms import SignupForm
+from django.contrib.auth.models import Group
+
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -100,6 +103,12 @@ class Comment(models.Model):
         else:
             return self._rate -1
         self.save()
-from django.db import models
 
-# Create your models here.
+
+class BasicSignupForm(SignupForm):
+    def save(self, request):
+        user = super(BasicSignupForm, self).save(request)
+        print(Group.objects.all().values())
+        basic_group = Group.objects.get(name='common')
+        basic_group.user_set.add(user)
+        return user

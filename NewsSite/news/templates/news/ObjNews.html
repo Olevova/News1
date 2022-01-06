@@ -3,8 +3,11 @@
 {%block title%}
 {{piece}}
 {%endblock title%}
-
 {%block containe%}
+<h5>время: {{timenow}}</h5>
+{%for i in auf%}
+<h5> auf : {{i.user.username}}</h5>
+{%endfor%}
 <div class="container">
 			<div class="row">
 				<div class="col-md-7 text-left">
