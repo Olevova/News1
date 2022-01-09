@@ -34,6 +34,7 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
     permission_required = ('news.add_Post')
     template_name = 'news_create.html'
     form_class = NewsForm
+    success_url = '/'
 
 
     def get_context_data(self, **kwargs):
