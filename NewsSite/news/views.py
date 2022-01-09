@@ -33,7 +33,7 @@ class NewsList(ListView):#вывод списка новостей
 class NewsCreateView(PermissionRequiredMixin, CreateView):
     permission_required = ('news.add_Post')
     template_name = 'news_create.html'
-    form_class = NewsForm
+    form_cslass = NewsForm
     success_url = '/'
 
 
