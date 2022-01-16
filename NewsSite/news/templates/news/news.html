@@ -3,10 +3,21 @@
 {%block title%}
 {{news}}
 {%endblock title%}
+{%block sidebar %}
+{%for i in category%}
+    {% if i.pk == category_selected %}
+<a class="list-group-item list-group-item-action active" id="list-home-list" data-bs-toggle="list" href="{{i.get_absolute_url}}" role="tab" aria-controls="list-home">{{i.name}}</a>
+    {%else%}
+<a class="list-group-item list-group-item-action" id="list-profile-list" data-bs-toggle="list" href="{{i.get_absolute_url}}" role="tab" aria-controls="list-profile">{{i.name}}</a>
+    {%endif%}
+{%endfor%}
+{%endblock sidebar%}
 {%block containe%}
-
+{% if not_sub%}
+<button class="btn btn-primary" type="button"> <a href="{%url 'sub'%}"> Хочу Подписаться на категорию и рассылку!</a> </button> <--Кнопка подписки на категорию + рассылка-->
+{% endif %}
 <p>
-<h5>количество новостей : {{news|length}}</h5>
+<div class="card text-center"><h5>количество новостей : {{news|length}}</h5></div>
 </p>
 <form method="GET">
     <div class="mb-3">
@@ -14,37 +25,26 @@
     <input type="submit" value="Найти">
     </div>
 </form>
-
 {%if news%}
-<table class="table">
-    <thead>
-    <tr>
-        <td>
-            <h5>Заголовок</h5>
-        </td>
-        <td>
-            <h5>Дата публикации</h5>
-        </td>
-        <td>
-            <h5>Tекст</h5>
-        </td>
-    </tr>
-    </thead>
 {%for i in news%}
-    <tr>
-                <td>
-                    <a href="{%url 'ObjNews.html' i.pk%}">{{i.title|multiply}}</a>
-                    <a class="btn btn-outline-primary btn-sm " href="{% url 'add' i.pk%}">Редактировать</a>
-                    <a class="btn btn-outline-primary btn-sm " href="{% url 'news_del' i.pk%}">Удалить</a><!--фильтр что проверяет не вхождение следующих слов ["дурак", 'невежда', 'редиска'] -->
-                </td>
-                <td>
-                    {{i.create|date:"d M Y H:i"}}
-                </td>
-                <td>
-                    {{i.text|truncatechars:50|multiply}}<!--фильтр что проверяет не вхождение следующих слов ["дурак", 'невежда', 'редиска'] -->
-                </td>
-            </tr>
+    <div class="card text-center">
+  <div class="card-header">
+      {%for t in i.category.all %}
+    {{t}}
+      {%endfor%}
+  </div>
+        <p>
+  <div class="card-body">
+    <a class="card-title" href="{%url 'ObjNews.html' i.pk%}"><h5>{{i.title}}</h5></a>
+    <p class="card-text">{{i.text|truncatechars:50|multiply}}</p>
+      <a class="btn btn-outline-primary btn-sm " href="{% url 'add' i.pk%}">Редактировать</a>
+                    <a class="btn btn-outline-primary btn-sm " href="{% url 'news_del' i.pk%}">Удалить</a>
+  </div>
+  <div class="card-footer text-muted">
+    {{i.create|date:"d M Y H:i"}}
+  </div>
+</div>
+</p>
     {%endfor%}
-</table>
     {%endif%}
 {%endblock containe%}

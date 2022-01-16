@@ -1,0 +1,11 @@
+{% extends 'index.html'%}
+{% load censor_filters %}
+{%block title%}
+{{news}}
+{%endblock title%}
+{%block containe%}
+{%for i in newslist%}
+<div><a class="card-title" href="http://127.0.0.1:8000/{{i.pk}}">{{i.title}}</a>
+</div>
+{%endfor%}
+{%endblock containe%}

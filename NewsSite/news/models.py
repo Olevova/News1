@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     _rate = models.IntegerField(default=0, db_column='rate')
+    subscribers = models.ManyToManyField('Category', through='SubAuthor', null=True, verbose_name='Подписка')
 
     def update_rating(self):# функция сделана двумя способами, через фор и так как показано в разборе проекта
         if self.author.all():
@@ -31,6 +32,12 @@ class Author(models.Model):
     def get_absolute_url(self):
         return reverse("mad", kwargs={"pk": self.pk, "user": self.user})
 
+class SubAuthor(models.Model):
+    category2 = models.ForeignKey('Category', on_delete=models.CASCADE)
+    author2 = models.ForeignKey('Author', on_delete=models.CASCADE, verbose_name="Автор")
+
+    def __str__(self):
+        return f'{self.category2.name}:{self.author2.user.username}'
 
 class Post(models.Model):
     CONTENT = [("NW", 'news'), ('AR', 'article')]
@@ -41,7 +48,6 @@ class Post(models.Model):
     rate = models.FloatField(default=0)
     author = models.ForeignKey(Author, related_name='author', on_delete=models.CASCADE, verbose_name="Автор")
     category = models.ManyToManyField('Category', through="PostCategory", verbose_name='Категория')
-
     def like(self):
         self.rate += 1
         self.save()
@@ -69,20 +75,22 @@ class Post(models.Model):
         verbose_name_plural = "Посты"
         ordering = ['-create']
 
-
 class PostCategory(models.Model):
-    category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    category = models.ForeignKey('Category',related_name="cat", on_delete=models.CASCADE)
     post = models.ForeignKey('Post', related_name="post", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.category.name
 
-
 class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
+
     def __str__(self):
         return f'{self.name}'
+
+    def get_absolute_url(self):
+        return f"/cat/{self.pk}"
 
 class Comment(models.Model):
     text = models.TextField(blank=True)

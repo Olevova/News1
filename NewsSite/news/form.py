@@ -13,5 +13,4 @@ class NewsForm(ModelForm):
     class Meta:
         model = Post
         fields = ['title','content', 'text', 'author', 'category']
-        widgets = {'text': forms.Textarea(attrs={'cols': 60, 'rows': 10})
-                   }
+        widgets = {'text': forms.Textarea(attrs={'cols': 60, 'rows': 10})}
