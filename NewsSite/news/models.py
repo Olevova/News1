@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     _rate = models.IntegerField(default=0, db_column='rate')
-    subscribers = models.ManyToManyField('Category', through='SubAuthor', null=True, verbose_name='Подписка')
+    subscribers = models.ManyToManyField('Category', through='SubAuthor', verbose_name='Подписка')
 
     def update_rating(self):# функция сделана двумя способами, через фор и так как показано в разборе проекта
         if self.author.all():
@@ -33,11 +33,11 @@ class Author(models.Model):
         return reverse("mad", kwargs={"pk": self.pk, "user": self.user})
 
 class SubAuthor(models.Model):
-    category2 = models.ForeignKey('Category', on_delete=models.CASCADE)
-    author2 = models.ForeignKey('Author', on_delete=models.CASCADE, verbose_name="Автор")
+    subcat = models.ForeignKey('Category', on_delete=models.CASCADE)
+    subaut = models.ForeignKey('Author', on_delete=models.CASCADE, verbose_name="Автор")
 
     def __str__(self):
-        return f'{self.category2.name}:{self.author2.user.username}'
+        return f'{self.subcat.name}:{self.subaut.user.username}'
 
 class Post(models.Model):
     CONTENT = [("NW", 'news'), ('AR', 'article')]

@@ -37,11 +37,11 @@ def SendNewCat(sender, instance, **kwargs):
     for i in r:
         cat = i
     print(cat)
-    c = SubAuthor.objects.filter(category2__name= cat)
+    c = SubAuthor.objects.filter(subcat__name= cat)
     mails = []
     for i in c:
-        if len(i.author2.user.email) > 1:
-            mails.append(str(i.author2.user.email))
+        if len(i.subaut.user.email) > 1:
+            mails.append(str(i.subaut.user.email))
     html_content = render_to_string(
         'OneNewsCreated.html',
         {

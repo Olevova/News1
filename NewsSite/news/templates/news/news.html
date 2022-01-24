@@ -14,7 +14,7 @@
 {%endblock sidebar%}
 {%block containe%}
 {% if not_sub%}
-<button class="btn btn-primary" type="button"> <a href="{%url 'sub'%}"> Хочу Подписаться на категорию и рассылку!</a> </button> <--Кнопка подписки на категорию + рассылка-->
+<button class="btn btn-primary" type="button"> <a href="{%url 'sub'%}"> Хочу Подписаться на категорию и рассылку!</a> </button>
 {% endif %}
 <p>
 <div class="card text-center"><h5>количество новостей : {{news|length}}</h5></div>

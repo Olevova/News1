@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from datetime import datetime
+from datetime import datetime, timedelta
 from .models import *
 from django.views.generic import ListView, DetailView,CreateView,DeleteView, UpdateView
 from .filters import PostFilter
@@ -9,7 +9,7 @@ from .form import NewsForm
 from django.contrib.auth.models import Group
 from django.core.mail import mail_admins,EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
-
+from news.task import *
 
 class NewsList(ListView):#вывод списка новостей
     model = Post
@@ -46,10 +46,10 @@ class NewsCat(ListView):
 
     def cat_sub(self):
         cat = Category.objects.get(pk=self.kwargs['pk'])
-        sub = SubAuthor.objects.filter(category2=cat)
+        sub = SubAuthor.objects.filter(subcat=cat)
         g = []
         for r in sub:
-            g.append(r.author2)
+            g.append(r.subaut)
         print(g)
         print(self.request.user.author)
         if not self.request.user.author in g:
@@ -64,7 +64,10 @@ class NewsCat(ListView):
         context['category'] = Category.objects.all()
         context['category_selected'] = self.kwargs['pk']
         context['not_sub'] = self.cat_sub()
-        print(context)
+        print(self.cat_sub(), context['category_selected'])
+        p = Post.objects.filter(create__gt = datetime.now() - timedelta(weeks=1))
+        for i in p:
+            print(i.title, i.create)
         return context
 
 
@@ -77,6 +80,7 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        #printer.apply_async([10],eta = datetime.now() + timedelta(seconds=5))
         context['is_not_authors'] = not self.request.user.groups.filter(name='authors').exists()
         return context
 
@@ -99,7 +103,7 @@ class NewsCreateView(PermissionRequiredMixin, CreateView):
             r = SubAuthor.objects.filter(category2__name='Sport1')
             for i in r:
                 if len(i.author2.user.email)>1:
-                    mails.append(str(i.author2.user.email))
+                    mails.append(str(i.subaut.user.email))
 
         print(mails)
         msg = EmailMultiAlternatives(
@@ -121,13 +125,15 @@ class News(DetailView):#вывод для одной новости
     context_object_name = 'piece'
     queryset = Post.objects.all()
 
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         context['timenow'] = datetime.now()
         context['auf'] = Author.objects.all()
         return context
 
-class NewsDel( LoginRequiredMixin , DeleteView):
+
+class NewsDel(LoginRequiredMixin , DeleteView):
     login_url = '/'
     template_name = 'news_del.html'
     context_object_name = "piece"
@@ -142,6 +148,7 @@ class NewsUpd(LoginRequiredMixin,UpdateView):
 
     def get_object(self, **kwargs):
         pk = self.kwargs.get('pk')
+        #printer.delay(5)
         return Post.objects.get(pk=pk)
 
     def get_context_data(self, **kwargs):
@@ -154,19 +161,20 @@ class NewsUpd(LoginRequiredMixin,UpdateView):
 @login_required
 def upgrade_me(request):
     user = request.user
-    authors_group = Group.objects.get(name='authors2')
-    if not request.user.groups.filter(name='authors2').exists():
+    authors_group = Group.objects.get(name='subaut')
+    if not request.user.groups.filter(name='subaut').exists():
         authors_group.user_set.add(user)
     return redirect('/')
 
+
 @login_required
 def Sub_Cut(request):
-    cat = Category.objects.get(name = 'Sport')
-    sub = SubAuthor.objects.filter(category2=cat)
+    cat = Category.objects.get(pk=pk)
+    sub = SubAuthor.objects.filter(subcat=cat)
     g = []
     for r in sub:
-        g.append(r.author2)
+        g.append(r.subcat)
     print(g)
     if not request.user.author in g:
-        SubAuthor.objects.create(author2=request.user.author, category2=cat)
+        SubAuthor.objects.create(subaut=request.user.author, subcat=cat)
     return redirect('/')
