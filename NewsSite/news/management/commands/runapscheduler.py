@@ -1,4 +1,5 @@
-import datetime
+from django.utils import timezone
+from datetime import datetime, timedelta
 import logging
 
 from django.conf import settings
@@ -16,24 +17,28 @@ from news.models import Post, Category, SubAuthor, Author
 logger = logging.getLogger(__name__)
 
 
-# наша задача по выводу текста на экран
+# задача отправки почты
 def my_job():
-    f = datetime.datetime.utcnow() - datetime.timedelta(days=7)
-    r = datetime.datetime.utcnow()
+    c1 = Post.objects.filter(create__range=[datetime.now(timezone.utc) - timedelta(days=7), datetime.now(timezone.utc)])
+    print(c1)
+    for i in c1:
+        print(i.title, i.create)
+    first_date = datetime.now(tz=timezone.utc)
+    last_date = datetime.now(tz=timezone.utc) - timedelta(days=7)
     cat = Category.objects.all()
-    print('ok')
+    print('ok',first_date, last_date)
     for item in cat:
         print(item)
-        c = Post.objects.filter(create__range=(f, r), category=item)
-        p = SubAuthor.objects.filter(category2__name=item)
+        c = Post.objects.filter(create__range=[datetime.now(timezone.utc) - timedelta(days=15), datetime.now(timezone.utc)], category=item)
+        p = SubAuthor.objects.filter(subcat__name=item)
         mails = []
         print(c,p)
         for i in p:
-            print(i.author2.user.email)
-            if len(i.author2.user.email) > 1:
-                mails.append(str(i.author2.user.email))
+            print(i.subaut.user.email)
+            if len(i.subaut.user.email) > 1:
+                mails.append(str(i.subaut.user.email))
         print(mails, item)
-        html_content = render_to_string('newslist.html',{'newslist': c})
+        html_content = render_to_string('newslist.html',{'newslist':c})
         msg = EmailMultiAlternatives(
             subject=item,
             body='list',
@@ -60,8 +65,7 @@ class Command(BaseCommand):
         # добавляем работу нашему задачнику
         scheduler.add_job(
             my_job,
-            trigger=CronTrigger(week="*/1"),
-            # То же, что и интервал, но задача тригера таким образом более понятна django
+            trigger=CronTrigger(day_of_week="mon", hour="09", minute="00"),
             id="my_job",  # уникальный айди
             max_instances=1,
             replace_existing=True,

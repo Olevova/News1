@@ -28,7 +28,7 @@ def SendDelPost(sender, instance, **kwargs):
     )
     print(subjects)
 
-@receiver(m2m_changed, sender = Post.category.through)# Рассылка подписчикам новых статей
+@receiver(m2m_changed, sender = Post.category.through) # Рассылка подписчикам новых статей по категории
 def SendNewCat(sender, instance, **kwargs):
     r = instance.category.all()
     print(r)
@@ -37,7 +37,7 @@ def SendNewCat(sender, instance, **kwargs):
     for i in r:
         cat = i
     print(cat)
-    c = SubAuthor.objects.filter(subcat__name= cat)
+    c = SubAuthor.objects.filter(subcat__name=cat)
     mails = []
     for i in c:
         if len(i.subaut.user.email) > 1:
@@ -56,7 +56,7 @@ def SendNewCat(sender, instance, **kwargs):
     msg = EmailMultiAlternatives(
         subject= subjects,
         body=f'{instance.text[:15]}',
-        from_email = 'olevova1983@gmail.com',
+        from_email='olevova1983@gmail.com',
         to=mails,
         )
     msg.attach_alternative(html_content, "text/html")

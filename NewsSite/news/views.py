@@ -33,7 +33,7 @@ class NewsList(ListView):#вывод списка новостей
                 #'NC': Category.objects.get(post__pk = self.pk)
                 }
 
-class NewsCat(ListView):
+class NewsCat(ListView): # вывод категорий
     model = Post
     template_name = "news.html"
     context_object_name ='news'
@@ -44,32 +44,32 @@ class NewsCat(ListView):
         print(self.kwargs['pk'])
         return Post.objects.filter(category__pk=self.kwargs['pk'])
 
-    def cat_sub(self):
-        cat = Category.objects.get(pk=self.kwargs['pk'])
-        sub = SubAuthor.objects.filter(subcat=cat)
-        g = []
-        for r in sub:
-            g.append(r.subaut)
-        print(g)
-        print(self.request.user.author)
-        if not self.request.user.author in g:
-            print('ok')
-            return True
-        else:
-            print('no')
-            False
-
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = Category.objects.all()
         context['category_selected'] = self.kwargs['pk']
         context['not_sub'] = self.cat_sub()
         print(self.cat_sub(), context['category_selected'])
-        p = Post.objects.filter(create__gt = datetime.now() - timedelta(weeks=1))
-        for i in p:
-            print(i.title, i.create)
         return context
 
+    def cat_sub(self):
+        print(self.request.user)
+        cat = Category.objects.get(pk=self.kwargs['pk'])
+        sub = SubAuthor.objects.filter(subcat=cat)
+        g = []
+        if str(self.request.user) == 'AnonymousUser':
+            False
+        else:
+            for r in sub:
+                g.append(r.subaut)
+            print(g)
+            print(self.request.user.author)
+            if not self.request.user.author in g:
+                print('ok')
+                return True
+            else:
+                print('no')
+                False
 
 
 class NewsCreateView(PermissionRequiredMixin, CreateView):
@@ -167,9 +167,11 @@ def upgrade_me(request):
     return redirect('/')
 
 
-@login_required
-def Sub_Cut(request):
-    cat = Category.objects.get(pk=pk)
+@login_required #
+def Sub_Cut(request,**kwargs):
+    cat_number = int(kwargs['pk'])
+    cat = Category.objects.get(pk=cat_number)
+    print(cat)
     sub = SubAuthor.objects.filter(subcat=cat)
     g = []
     for r in sub:

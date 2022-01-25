@@ -13,7 +13,7 @@ def printer(N):
     for i in range(N):
         time.sleep(1)
         print(i+1)
-#@shared_task
+#"@shared_task
 #def SendNew():
 #    Nl = Post.objects.filter(create__gt = datetime.now() - timedelta(weeks=1))
 #    Subs = Author.objects.filter()
